@@ -1,93 +1,48 @@
-![nuxt-ui-dashboard-social-card](https://github.com/nuxt-ui-pro/dashboard/assets/739984/f785284b-7db2-4732-af0e-2cb3c0bd7ca2)
+---
+description: >-
+  Profit Pulse is a personal dashboard application designed to visually display
+  my earnings from multiple sources of income throughout the year. Utilizing
+  Nuxt.js and the Google Sheets API, it offers an
+---
 
-# Nuxt UI Pro - Dashboard template
+# Project Brief
 
-[![Nuxt UI Pro](https://img.shields.io/badge/Made%20with-Nuxt%20UI%20Pro-00DC82?logo=nuxt.js&labelColor=020420)](https://ui.nuxt.com/pro)
+## **Project Purpose**
 
-- [Live demo](https://dashboard-template.nuxt.dev/)
-- [Play on Stackblitz](https://stackblitz.com/github/nuxt-ui-pro/dashboard)
-- [Documentation](https://ui.nuxt.com/pro/getting-started)
+The primary purpose of this project is to display earnings from my three sources of income throughout the year in a visually appealing, organized, and user-friendly manner. This is achieved by leveraging Nuxt UI and Google Sheets.\
+\
+I am currently building this for my personal use. However, in the future, it aims to cater to other users who utilize spreadsheets and have various sources of income. These users will benefit from a dashboard template that allows them to visualize their financial performance throughout the year.
 
-[![Deploy to NuxtHub](https://hub.nuxt.com/button.svg)](https://hub.nuxt.com/new?repo=nuxt-ui-pro/dashboard)
+## **Technologies Used**
 
-## Quick Start
+This project utilizes the following technologies and frameworks:
 
-```bash [Terminal]
-npx nuxi init -t github:nuxt-ui-pro/dashboard
-```
+* **Nuxt.js**: A powerful framework for building Vue.js applications.
+* **Vue.js**: The underlying JavaScript framework used for building user interfaces.
+* **Axios**: A promise-based HTTP client for making requests to the Google Sheets API.
+* **Google Sheets API**: Used for fetching data from Google Sheets.
+* **Nuxt UI**: A UI component library for Nuxt applications.
+* **Tailwind CSS**: A utility-first CSS framework for styling the application.
 
-## Setup
+## **Data Fetching Mechanism**
 
-Make sure to install the dependencies:
+Data is fetched using Axios. The Google API key is obtained from [Google Cloud,](https://cloud.google.com/) and the spreadsheet ID is sourced from a sample project created specifically for this purpose.
 
-```bash
-# npm
-npm install
+## &#x20;**Key Features**
 
-# pnpm
-pnpm install
+* Display earnings from multiple sources in a structured format.
+* Interactive dropdowns for filtering data by rows and columns.
+* Visual representation of financial data for better insights.
+* Responsive design to ensure usability across devices.
 
-# yarn
-yarn install
+## **Use Cases**
 
-# bun
-bun install
-```
+The application is designed for tracking sales progress and monitoring total earning growth, especially beneficial for individuals with multiple income sources.
 
-## Development Server
+## **Setup Instructions**
 
-Start the development server on `http://localhost:3000`:
+Users need to configure their environment by replacing the placeholders in the `.env` file with their Google API key and spreadsheet ID before running the application.
 
-```bash
-# npm
-npm run dev
+## **Future Enhancements**
 
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
-
-## Renovate integration
-
-Install [Renovate GitHub app](https://github.com/apps/renovate/installations/select_target) on your repository and you are good to go.
+Currently, there are no specific future enhancements planned; however, potential improvements may include additional features based on feedback and requirements.
