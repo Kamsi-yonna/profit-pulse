@@ -13,6 +13,13 @@ export default defineNuxtConfig({
     safelistColors: ['primary', 'red', 'orange', 'green']
   },
 
+  runtimeConfig: {
+    public: {
+      googleApiKey: process.env.GOOGLE_API_KEY,
+      spreadsheetId: process.env.SPREADSHEET_ID,
+    },
+  },
+
   colorMode: {
     disableTransition: true
   },

@@ -19,6 +19,7 @@
     "@unovis/ts": "^1.4.4",
     "@unovis/vue": "^1.4.4",
     "@vueuse/nuxt": "^11.1.0",
+    "axios": "^1.7.8",
     "date-fns": "^4.1.0",
     "nuxt": "^3.13.2",
     "v-calendar": "^3.1.2"
