@@ -1,114 +1,158 @@
 <template>
-    <div>
-        <h1>Data Report</h1>
-        <DataTable :headers="headers" :data="salesData" />
+  <UDashboardPage>
+    <UDashboardPanel grow>
+      <UDashboardNavbar
+        title="Data Report"
+        :badge="dataRows.length"
+      >
+        <template #right>
+          <UInput
+            ref="input"
+            v-model="searchQuery"
+            icon="i-heroicons-funnel"
+            autocomplete="off"
+            placeholder="Filter data..."
+            class="hidden lg:block"
+            @keydown.esc="$event.target.blur()"
+          >
+            <template #trailing>
+              <UKbd value="/" />
+            </template>
+          </UInput>
+        </template>
+      </UDashboardNavbar>
 
-        <div class="selected-data">
-            <h2>Selected Data</h2>
+      <UDashboardToolbar>
+        <template #right>
+          <USelectMenu
+            v-model="selectedColumns"
+            icon="i-heroicons-adjustments-horizontal-solid"
+            :options="columns.map(col => col.label)"
+            multiple
+            class="hidden lg:block"
+          >
+            <template #label>
+              Display
+            </template>
+          </USelectMenu>
+        </template>
+      </UDashboardToolbar>
 
-            <div class="dropdowns">
-                <select v-model="selectedRow" @change="updateRowData">
-                    <option value="" disabled>Select Row</option>
-                    <option v-for="(row, index) in uniqueRows" :key="index">{{ row }}</option>
-                </select>
-
-                <select v-model="selectedColumn" @change="updateColumnData">
-                    <option value="" disabled>Select Column</option>
-                    <option v-for="(header, index) in headers" :key="index">{{ header }}</option>
-                </select>
-            </div>
-
-            <table class="selected-data-table">
-                <thead>
-                    <tr>
-                        <th v-for="(header, index) in headers" :key="index">{{ header }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="rowData.length">
-                        <td v-for="(data, index) in rowData" :key="index">{{ data }}</td>
-                    </tr>
-                    <!-- <tr v-if="cellValue">
-                        <td colspan="2">Cell Value: {{ cellValue }}</td>
-                    </tr> -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+      <UTable
+        v-model:sort="sortOptions"
+        :rows="sortedData"
+        :columns="visibleColumns"
+        :loading="loading"
+        sort-mode="manual"
+        class="w-full"
+        :ui="{ divide: 'divide-gray-200 dark:divide-gray-800' }"
+        @select="onSelectRow"
+      >
+        <template
+          v-for="column in visibleColumns"
+          :key="column.key"
+          #[`${column.key}-data`]="{ row }"
+        >
+          {{ row[column.key] }}
+        </template>
+      </UTable>
+    </UDashboardPanel>
+  </UDashboardPage>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useGoogleSheets } from '@/composables/useGoogleSheets';
-import DataTable from '@/components/DataTable.vue';
+import { ref, computed, onMounted } from 'vue'
+import { useGoogleSheets } from '@/composables/useGoogleSheets'
 
-const { fetchSheetData } = useGoogleSheets();
-const salesData = ref<string[][]>([]);
-const headers = ref<string[]>([]);
+const searchQuery = ref('')
+const selectedRows = ref<any[]>([])
+const selectedColumns = ref<string[]>([])
+const sortOptions = ref({ column: 'index', direction: 'asc' as const })
+const input = ref<{ input: HTMLInputElement }>()
+const loading = ref(true)
 
-const selectedRow = ref<string | null>(null);
-const selectedColumn = ref<string | null>(null);
-const uniqueRows = ref<string[]>([]);
-const rowData = ref<string[]>([]);
-const cellValue = ref<string | null>(null);
+const { fetchSheetData } = useGoogleSheets()
+const dataRows = ref<any[]>([])
+
+const columns = ref<{ key: string, label: string, sortable?: boolean }[]>([
+  { key: 'index', label: '#', sortable: false }
+])
 
 onMounted(async () => {
-    const rawData = await fetchSheetData();
+  const rawData = await fetchSheetData()
+  console.log('Fetched Data:', rawData)
 
-    if (rawData) {
-        headers.value = rawData[0]; // First row as headers
-        salesData.value = rawData.slice(1); // Remaining rows as data
+  if (rawData) {
+    const headers = rawData[0]
 
-        // Extract unique values from the first column for row selection
-        uniqueRows.value = [...new Set(salesData.value.map(row => row[0]))]; // Assuming first column has unique identifiers
-    }
-});
+    dataRows.value = rawData.slice(1).map((row) => {
+      return headers.reduce((acc, header, index) => {
+        acc[header] = row[index]
+        return acc
+      }, {})
+    })
 
-// Function to update row data based on selected row
-function updateRowData() {
-    if (selectedRow.value) {
-        const foundRow = salesData.value.find(row => row[0] === selectedRow.value);
-        rowData.value = foundRow || [];
-        cellValue.value = null; // Reset cell value when changing rows
-    }
+    columns.value.push(
+      ...headers.map(header => ({
+        key: header,
+        label: header,
+        sortable: true
+      }))
+    )
+
+    selectedColumns.value = columns.value.map(col => col.key)
+    loading.value = false
+  }
+})
+
+const filteredData = computed(() => {
+  return dataRows.value.map((row, index) => ({
+    ...row,
+    index: index + 1 // Add index to each row
+  })).filter((row) => {
+    const matchesQuery = Object.values(row).some(value =>
+      String(value).toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+    return matchesQuery
+  })
+})
+
+// Sorting Logic
+const sortedData = computed(() => {
+  const sortedRows = [...filteredData.value]
+  if (sortOptions.value.column && sortOptions.value.direction) {
+    sortedRows.sort((a, b) => {
+      const aValue = a[sortOptions.value.column]
+      const bValue = b[sortOptions.value.column]
+
+      if (aValue < bValue) return sortOptions.value.direction === 'asc' ? -1 : 1
+      if (aValue > bValue) return sortOptions.value.direction === 'asc' ? 1 : -1
+      return 0
+    })
+  }
+  return sortedRows
+})
+
+const visibleColumns = computed(() => {
+  return columns.value.filter(column => selectedColumns.value.includes(column.key))
+})
+
+function onSelectRow(row: any) {
+  const index = selectedRows.value.findIndex(item => item.id === row.id)
+  if (index === -1) {
+    selectedRows.value.push(row)
+  } else {
+    selectedRows.value.splice(index, 1)
+  }
 }
 
-// Function to update cell value based on selected column
-function updateColumnData() {
-    if (selectedRow.value && selectedColumn.value) {
-        const colIndex = headers.value.indexOf(selectedColumn.value);
-
-        if (colIndex !== -1) {
-            const foundRow = salesData.value.find(row => row[0] === selectedRow.value);
-            cellValue.value = foundRow ? foundRow[colIndex] : null; // Get specific cell value
-        }
-    }
-}
+defineShortcuts({
+  '/': () => {
+    input.value?.input?.focus()
+  }
+})
 </script>
 
 <style scoped>
-.dropdowns {
-    margin-top: 20px;
-}
-
-.dropdowns select {
-    margin-right: 10px;
-}
-
-.header-table,
-.selected-data-table {
-    width: 100%;
-    margin-top: 20px;
-}
-
-.header-table th,
-.selected-data-table th,
-.selected-data-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-}
-
-.selected-data-table td {
-    text-align: center;
-}
+/* Add any additional styles if needed */
 </style>
