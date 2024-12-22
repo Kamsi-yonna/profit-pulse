@@ -23,6 +23,16 @@ const links = [{
     shortcuts: ['G', 'I']
   }
 }, {
+  id: 'Spreadsheet',
+  label: 'Spreadsheet',
+  icon: 'material-symbols:table-sharp',
+  to: 'spreadsheet',
+  tooltip: {
+    text: 'Spreadhsheet',
+    shortcuts: ['G', 'C']
+  }
+}, {
+}, {
   id: 'users',
   label: 'Users',
   icon: 'i-heroicons-user-group',
